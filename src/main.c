@@ -13,6 +13,8 @@ int main(int argc, char *argv[])
   while (fgets(input, sizeof(input), stdin))
   {
     input[strcspn(input, "\n")] = 0;
+    if (strcmp(input, "exit") == 0)
+      break;
     printf("%s: command not found\n", input);
     printf("$ ");
   }
