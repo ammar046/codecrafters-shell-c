@@ -88,6 +88,29 @@ void lsh_loop()
     }
     else
     {
+
+      char *name = malloc(strlen(cmd) + 1);
+      strcpy(name, cmd);
+      int count = 0;
+      char **args = NULL;
+      args = realloc(args, (count + 1) * sizeof(char *));
+      args[count] = malloc(strlen(name) + 1);
+      strcpy(args[count], name);
+      count++;
+      char *arg = strtok(NULL, " ");
+      while (arg != NULL)
+      {
+        printf("arg = %s\n", arg);
+        args = realloc(args, (count + 1) * sizeof(char *));
+        args[count] = malloc(strlen(arg) + 1);
+        strcpy(args[count], arg);
+        count++;
+        arg = strtok(NULL, " ");
+      }
+
+      args = realloc(args, (count + 1) * sizeof(char *));
+      args[count] = NULL;
+
       char *path_found = find_in_path(cmd);
       if (path_found == NULL)
       {
@@ -95,31 +118,10 @@ void lsh_loop()
       }
       else
       {
-        char *name = malloc(strlen(cmd) + 1);
-        strcpy(name, cmd);
-        int count = 0;
-        char **args = NULL;
-        args = realloc(args, (count + 1) * sizeof(char *));
-        args[count] = malloc(strlen(name) + 1);
-        strcpy(args[count], name);
-        count++;
-        char *arg = strtok(NULL, " ");
-        while (arg != NULL)
-        {
-          args = realloc(args, (count + 1) * sizeof(char *));
-          args[count] = malloc(strlen(arg) + 1);
-          strcpy(args[count], arg);
-          count++;
-          arg = strtok(NULL, " ");
-        }
-
-        args = realloc(args, (count + 1) * sizeof(char *));
-        args[count] = NULL;
-
         pid_t pid = fork();
         if (pid == 0)
         {
-          execv(path_found, args);
+          execvp(path_found, args);
           perror("exec failed!\n");
         }
         else if (pid < 0)
