@@ -88,7 +88,7 @@ void lsh_loop()
     }
     else
     {
-
+      // first extract the argument list
       char *name = malloc(strlen(cmd) + 1);
       strcpy(name, cmd);
       int count = 0;
@@ -100,7 +100,6 @@ void lsh_loop()
       char *arg = strtok(NULL, " ");
       while (arg != NULL)
       {
-        printf("arg = %s\n", arg);
         args = realloc(args, (count + 1) * sizeof(char *));
         args[count] = malloc(strlen(arg) + 1);
         strcpy(args[count], arg);
@@ -111,6 +110,11 @@ void lsh_loop()
       args = realloc(args, (count + 1) * sizeof(char *));
       args[count] = NULL;
 
+      /*
+        One thing I learned is that strtok() keeps a global internal state.
+        If another function also calls strtok(), it resets that state and breaks the original tokenization process.
+        That’s why functions that tokenize different strings should use strtok_r() or maintain separate parsing logic.
+       */
       char *path_found = find_in_path(cmd);
       if (path_found == NULL)
       {
