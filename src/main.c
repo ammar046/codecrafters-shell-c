@@ -71,7 +71,7 @@ void lsh_loop()
     else if (strcmp(cmd, "type") == 0)
     {
       cmd = strtok(NULL, " ");
-      if (strcmp(cmd, "exit") == 0 || strcmp(cmd, "echo") == 0 || strcmp(cmd, "type") == 0 || strcmp(cmd, "pwd") == 0)
+      if (strcmp(cmd, "exit") == 0 || strcmp(cmd, "echo") == 0 || strcmp(cmd, "type") == 0 || strcmp(cpy, "pwd") == 0)
       {
         printf("%s is a shell builtin\n", cmd);
       }
@@ -87,6 +87,12 @@ void lsh_loop()
           printf("%s: not found\n", cmd);
         }
       }
+    }
+    else if (strcmp(cpy, "pwd") == 0)
+    {
+      char *path_env = getenv("PATH");
+      if (path_env)
+        printf("%s\n", path_env);
     }
     else
     {
