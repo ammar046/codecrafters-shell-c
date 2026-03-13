@@ -91,19 +91,19 @@ void lsh_loop()
       char *path_found = find_in_path(cmd);
       if (path_found == NULL)
       {
-        printf("%s: command not found\n", input);
+        printf("%s: command not found\n", cpy);
       }
       else
       {
         char *name = malloc(strlen(cmd) + 1);
         strcpy(name, cmd);
         int count = 0;
-        char *arg = strtok(NULL, " ");
         char **args = NULL;
         args = realloc(args, (count + 1) * sizeof(char *));
         args[count] = malloc(strlen(name) + 1);
         strcpy(args[count], name);
         count++;
+        char *arg = strtok(NULL, " ");
         while (arg != NULL)
         {
           args = realloc(args, (count + 1) * sizeof(char *));
