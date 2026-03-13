@@ -117,7 +117,7 @@ void lsh_loop()
         args[count] = NULL;
 
         pid_t pid = fork();
-        if (pid > 0)
+        if (pid == 0)
         {
           execvp(path_found, args);
           perror("exec failed!\n");
