@@ -98,7 +98,7 @@ void lsh_loop()
         char *name = malloc(strlen(cmd) + 1);
         strcpy(name, cmd);
         int count = 0;
-        char *arg = strtok(NULL, ":");
+        char *arg = strtok(NULL, " ");
         char **args = NULL;
         args = realloc(args, (count + 1) * sizeof(char *));
         args[count] = malloc(strlen(name) + 1);
@@ -110,7 +110,7 @@ void lsh_loop()
           args[count] = malloc(strlen(arg) + 1);
           strcpy(args[count], arg);
           count++;
-          arg = strtok(NULL, ":");
+          arg = strtok(NULL, " ");
         }
 
         args = realloc(args, (count + 1) * sizeof(char *));
