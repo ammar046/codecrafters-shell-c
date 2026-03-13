@@ -90,9 +90,15 @@ void lsh_loop()
     }
     else if (strcmp(cmd, "pwd") == 0)
     {
-      char *path_env = getenv("PATH");
-      if (path_env)
-        printf("%s\n", path_env);
+      char path[1024];
+      if (getcwd(path, sizeof(path)) != NULL)
+      {
+        printf("%s\n", path);
+      }
+      else
+      {
+        perror("getcwd() error");
+      }
     }
     else
     {
