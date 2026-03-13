@@ -71,7 +71,7 @@ void lsh_loop()
     else if (strcmp(cmd, "type") == 0)
     {
       cmd = strtok(NULL, " ");
-      if (strcmp(cmd, "exit") == 0 || strcmp(cmd, "echo") == 0 || strcmp(cmd, "type") == 0)
+      if (strcmp(cmd, "exit") == 0 || strcmp(cmd, "echo") == 0 || strcmp(cmd, "type") == 0 || strcmp(cmd, "pwd") == 0)
       {
         printf("%s is a shell builtin\n", cmd);
       }
