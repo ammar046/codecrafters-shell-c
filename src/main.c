@@ -47,7 +47,10 @@ void lsh_loop()
     strcpy(cpy, input);
     char *cmd = strtok(input, " ");
     if (strcmp(cmd, "exit") == 0)
+    {
+      free(cpy);
       break;
+    }
     else if (strcmp(cmd, "echo") == 0)
     {
       char *stmt = strchr(cpy, ' ');
@@ -64,7 +67,6 @@ void lsh_loop()
         // Standard shells just print a blank line
         printf("\n");
       }
-      free(cpy);
     }
     else if (strcmp(cmd, "type") == 0)
     {
@@ -135,11 +137,18 @@ void lsh_loop()
         else
         {
           wait(NULL); //  to avoid zombie process
+          for (int i = 0; i < count; i++)
+          {
+            free(args[i]);
+          }
+          free(args);
+          free(name);
         }
       }
     }
 
     printf("$ ");
+    free(cpy);
   }
 }
 
