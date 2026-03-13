@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 char *find_in_path(char *command)
 {
@@ -11,7 +13,7 @@ char *find_in_path(char *command)
 
   char *path_copy = strdup(path_env);
   char *dir = strtok(path_copy, ":");
-  static char result_path[1024];
+  static char result_path[4096];
   int found = 0;
 
   while (dir != NULL)
@@ -29,49 +31,115 @@ char *find_in_path(char *command)
   return found ? result_path : NULL;
 }
 
-int main(int argc, char *argv[])
+void lsh_loop()
 {
-  // Flush after every printf
-  setbuf(stdout, NULL);
-
   printf("$ ");
   char input[100];
 
   while (fgets(input, sizeof(input), stdin))
   {
-    input[strcspn(input, "\n")] = 0;
-    if (strcmp(input, "exit") == 0)
-      break;
-    else if (strncmp(input, "echo ", 5) == 0)
+    input[strcspn(input, "\r\n")] = 0;
+    char *cpy = malloc(strlen(input) + 1);
+    if (cpy == NULL)
     {
-      printf("%s\n", input + 5);
+      perror("creating a copy of input failed\n");
     }
-    else if (strncmp(input, "type ", 5) == 0)
+    strcpy(cpy, input);
+    char *cmd = strtok(input, " ");
+    if (strcmp(cmd, "exit") == 0)
+      break;
+    else if (strcmp(cmd, "echo") == 0)
     {
-      if (strcmp(input + 5, "exit") == 0 || strcmp(input + 5, "echo") == 0 || strcmp(input + 5, "type") == 0)
+      char *stmt = strchr(cpy, ' ');
+      if (stmt != NULL)
       {
-        printf("%s is a shell builtin\n", input + 5);
+        // We found a space! Move past it.
+        while (*stmt == ' ')
+          stmt++;
+        printf("%s\n", stmt);
       }
       else
       {
-        char *path_found = find_in_path(input + 5);
+        // No space found (user just typed "echo")
+        // Standard shells just print a blank line
+        printf("\n");
+      }
+      free(cpy);
+    }
+    else if (strcmp(cmd, "type") == 0)
+    {
+      cmd = strtok(NULL, " ");
+      if (strcmp(cmd, "exit") == 0 || strcmp(cmd, "echo") == 0 || strcmp(cmd, "type") == 0)
+      {
+        printf("%s is a shell builtin\n", cmd);
+      }
+      else
+      {
+        char *path_found = find_in_path(cmd);
         if (path_found)
         {
-          printf("%s is %s\n", input + 5, path_found);
+          printf("%s is %s\n", cmd, path_found);
         }
         else
         {
-          printf("%s: not found\n", input + 5);
+          printf("%s: not found\n", cmd);
         }
       }
     }
     else
     {
-      printf("%s: command not found\n", input);
+      char *path_found = find_in_path(cmd);
+      if (path_found == NULL)
+      {
+        printf("%s: command not found\n", input);
+      }
+      else
+      {
+        char *name = malloc(strlen(cmd) + 1);
+        strcpy(name, cmd);
+        int count = 0;
+        char *arg = strtok(NULL, ":");
+        char **args = NULL;
+        args = realloc(args, (count + 1) * sizeof(char *));
+        args[count] = malloc(strlen(cmd) + 1);
+        strcpy(args[count], cmd);
+        count++;
+        while (arg != NULL)
+        {
+          args = realloc(args, (count + 1) * sizeof(char *));
+          args[count] = malloc(strlen(arg) + 1);
+          strcpy(args[count], arg);
+          count++;
+          arg = strtok(NULL, ":");
+        }
+
+        args = realloc(args, (count + 1) * sizeof(char *));
+        args[count] = NULL;
+
+        pid_t pid = fork();
+        if (pid > 0)
+        {
+          execvp(path_found, args);
+          perror("exec failed!\n");
+        }
+        else if (pid < 0)
+        {
+          perror("FORK FAILED!\n");
+        }
+        wait(NULL); //  to avoid zombie process
+      }
     }
 
     printf("$ ");
   }
+}
 
+int main(int argc, char *argv[])
+{
+  // Flush after every printf
+  setbuf(stdout, NULL);
+
+  // main shell loop
+  lsh_loop();
   return 0;
 }
