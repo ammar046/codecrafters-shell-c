@@ -119,14 +119,17 @@ void lsh_loop()
         pid_t pid = fork();
         if (pid == 0)
         {
-          execvp(path_found, args);
+          execvp(args[0], args);
           perror("exec failed!\n");
         }
         else if (pid < 0)
         {
           perror("FORK FAILED!\n");
         }
-        wait(NULL); //  to avoid zombie process
+        else
+        {
+          wait(NULL); //  to avoid zombie process
+        }
       }
     }
 
