@@ -101,8 +101,8 @@ void lsh_loop()
         char *arg = strtok(NULL, ":");
         char **args = NULL;
         args = realloc(args, (count + 1) * sizeof(char *));
-        args[count] = malloc(strlen(cmd) + 1);
-        strcpy(args[count], cmd);
+        args[count] = malloc(strlen(name) + 1);
+        strcpy(args[count], name);
         count++;
         while (arg != NULL)
         {
